@@ -1,0 +1,15 @@
+    WriteUp
+    
+    1)
+    Latent Variables:
+     Accuracy, Percision, Recall, Average, labels
+     
+     Known Variables: 
+     Samples,Expected values, # of folds
+     
+     2) No it couldn't a linear classify isn't very good at handling anyform of outliers.
+     Which even if we have enough datapoints, if there's even one outlier the classification becomes 99.99...% though it isn't 100% it is infinitely close. So yes on a good training set of data that is clear you can get infinitely close or accurately at 100%.
+     
+     3) Because accuracy is an avg essentially. Of total right, over total cases done. It doesn't give us any information on wether or not certain classifiers are being failed to be recognized. Percision gives us the percent likely hood that a specific classifier is correct. Which helps us one figure out problems with what's causing it to be inaccurate, and also acts as a validifier. Recall tells us how likely is it for the model to select a specific class. This helps us give a better picture on why things might be false positives, why are we negatives etc... High accuracy can be bad for instance if you have a 2 class based labeling. If let's say data points out of 100, 90 are one class and 10 are the other and the algorithm clearly gets one classifier right 90/90 but gets the other 10/10 wrong. Then it would report that you ahve a 90% accuracy. Which doesn't show us the whole picture, that one class straight up failed at a wopping 0% correct. Which might tell us our classifier is incorrect and needs to be readdressed.
+     
+     4) Quantatively the accuracy increases slightly when you set it to false but all the other things such as recall and percision plummets. Where as if you set it to true, accuracy takes a small hit, and everything else increases substantially. Which means that when it's false the classifiers seem to be doing worse, where when it's true everything is in general doing much better

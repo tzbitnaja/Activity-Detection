@@ -1,0 +1,2 @@
+
+2) The tree.dot vs tree10.dot. Tree10.dot has more nodes which allows it to be more accurate in terms of classification even though one classifier went down, another went up. For the original tree.dot it did worse on one classifier then it was with another.

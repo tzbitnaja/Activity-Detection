@@ -1,0 +1,4 @@
+1) Refer to code
+2) Refer to code
+3) Frankly the features that i chose to plot out, neither seem to work the best. They all seem like poor classifiers. Funnily enough the FFT is almost the exact same thing as median but on a larger scale. It’s the same graph but scaled. the last graph is interesting as the magnitude is only a thin strip right in the middle which is very interesting.
+
