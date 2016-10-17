@@ -1,0 +1,63 @@
+1) results of training 4 different decision tree classifiers
+
+max_depth = 15, max_features = 3
+average accuracy over 10 folds: 0.881744040151
+
+average precision for classifier 0 over 10 folds: 0.468460
+average recall for classifier 0 over 10 folds: 0.447472
+
+average precision for classifier 1 over 10 folds: 0.803446
+average recall for classifier 1 over 10 folds: 0.856055
+
+
+2max_depth = 20, max_features = 13
+average accuracy over 10 folds: 0.882183186951
+
+average precision for classifier 0 over 10 folds: 0.472445
+average recall for classifier 0 over 10 folds: 0.439039
+
+average precision for classifier 1 over 10 folds: 0.806401
+average recall for classifier 1 over 10 folds: 0.904528
+
+
+max_depth = 10, max_features = 13
+average accuracy over 10 folds: 0.899937264743
+
+average precision for classifier 0 over 10 folds: 0.494983
+average recall for classifier 0 over 10 folds: 0.447916
+
+average precision for classifier 1 over 10 folds: 0.807897
+average recall for classifier 1 over 10 folds: 0.935335
+
+
+max_depth = 7, max_features = 13
+average accuracy over 10 folds: 0.906587202008
+
+average precision for classifier 0 over 10 folds: 0.494970
+average recall for classifier 0 over 10 folds: 0.466955
+
+average precision for classifier 1 over 10 folds: 0.816394
+average recall for classifier 1 over 10 folds: 0.942826
+
+
+2) tree7_13.dot vs tree 20_13.dot
+
+Tree w/ max_depth = 7, max_features = 13 is the tree that produced best results, while tree w/ max_depth = 20, max_features = 13 came 3rd (out of 4).
+Comparing the graphs of tree 20_13, we can see that the tree with depth 20, is way more expansive and complex, as well as not that well balanced, compared to the tree 7_13 where each leaf is at pretty much the same depth as other leaves.
+Tree 20_13 is an overly-complex tree that does not generalize the data well.
+
+
+3) The number of features and maximum samples effects the accuracy of the classifier. Decision tree learners with too high of maximum depth and/or number of features degrade in accuracy, as they do not learn and generalize the data well. To avoid this, it is neccessary to find a proper ratio between the number of samples, number of features and the depth of the tree. If the depth is too high while the sample size is low and the dimensional space is large (the depth is large), you are likely going to overfit the tree, regardless of whether the number of features is high or low (tree20_13 vs tree15_3). For our data set, the tree with depth of 7 and # of features at 13 seems to do best, because the sample size/depth ratio allows for proper learning.
+
+4) decision tree classifier is a non-linear classifier. There is not equation to express the mapping between independent and dependent variables, it makes binary classification instead. At each leaf, a dimension is chosen to split along
+
+5) We chose to train KNearestNeighbors classifier with 2 nearest neighbors and weights set to "distance". 
+average accuracy over 10 folds: 0.838456712673
+
+average precision for classifier 0 over 10 folds: 0.469133
+average recall for classifier 0 over 10 folds: 0.371681
+
+average precision for classifier 1 over 10 folds: 0.762034
+average recall for classifier 1 over 10 folds: 0.863550
+
+It did not do as well as the decision tree; however, it did pretty well in comparison to a linear SVM classifier, which (as expected) got considerably lower accuracy for the sample data set. In general, non-linear algorithms would work much better on this data set, which both Decision Trees and K nearest neighbors are.
