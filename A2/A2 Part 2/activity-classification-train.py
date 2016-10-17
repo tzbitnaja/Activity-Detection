@@ -35,6 +35,7 @@ from features import extract_features # make sure features.py is in the same dir
 from util import slidingWindow, reorient, reset_vars
 from sklearn import cross_validation
 from sklearn.metrics import confusion_matrix
+from sklearn import metrics, neighbors
 import pickle
 #pdb.set_trace()
 
@@ -149,15 +150,12 @@ n_classes = len(class_names)
 # Report average accuracy, precision and recall metrics.
 tree = DecisionTreeClassifier(criterion="entropy", max_depth=10)
 cv = cross_validation.KFold(n, n_folds=10, shuffle=False, random_state=None)
-tnc = 0
-ttruths = 0
-tfalse = 0
+true_total = 0
+false_total = 0
+total = 0
 
-avgacc = 0.0
-avgprecisionA = 0.0
-avgprecisionB = 0.0
-avgrecallA = 0.0
-avgrecallB = 0.0
+precision = np.full(n_classes, 0.0)
+recall = np.full(n_classes, 0.0)
 
 for i, (train_indexes, test_indexes) in enumerate(cv):
     X_train = X[train_indexes, :]
@@ -168,79 +166,55 @@ for i, (train_indexes, test_indexes) in enumerate(cv):
     tree.fit(X_train, y_train)
     y_pred = tree.predict(X_test)
     
-    laccuracy = 0.0
-    
-    percisionA = 0.0
-    percisionB = 0.0
-    recallA = 0.0
-    recallB = 0.0
-    
     conf = confusion_matrix(y_test, y_pred)
-    # ACCURACY
-    firstRow = conf[0]
-    secondRow = conf[1]
-    
-    truths = firstRow[0]+secondRow[1]
-    false = firstRow[1]+secondRow[0]
-    
-    # PRECISION
-    if((firstRow[0]+secondRow[0]) != 0):
-        percisionA = float(firstRow[0]) / (firstRow[0]+secondRow[0])
-    else:
-        percisionA = 0.0
-    if((secondRow[1]+firstRow[1])!= 0 ):
-        percisionB = float(secondRow[1]) / (firstRow[1] + secondRow[1])
-    else:
-        percisionB = 0.0
-    
-    # RECALL
-    if(sum(firstRow)!=0):
-        recallA = float(firstRow[0]) / sum(firstRow)
-    else:
-        recallA = 0.0
-    if(sum(secondRow)):
-        recallB = float(secondRow[1]) / sum(secondRow)
-    else:
-        recallB = 0.0
 
-    # GLOBAL
-    tnc +=truths+false
-    ttruths+= truths
-    tfalse += false
-
-    avgprecisionA += percisionA
-    avgprecisionB += percisionB
-    avgrecallA += recallA
-    avgrecallB += recallB
-    
-    
     print("Fold {}".format(i))
 
-avgacc = float(ttruths)/tnc
-avgprecisionA /= 10.0
-avgprecisionB /= 10.0
-avgrecallA /= 10.0
-avgrecallB /= 10.0
+    for i in range(0, n_classes):
+        row = conf[i]
 
-treeAcc = avgacc
+        tp_fp = 0.0
+        tp_fn = 0.0
 
-print "average accuracy over 10 folds: {}".format(avgacc)
-print "average percision for classifier A over 10 folds: {}".format(avgprecisionA)
-print "average percision for classifier B over 10 folds: {}".format(avgprecisionB)
-print "average recall for classifier A over 10 folds: {}".format(avgrecallA)
-print "average recall for classifier B over 10 folds: {}".format(avgrecallB)
+        for j in range(0, n_classes):
+            tp_fp += conf[j][i]
+            tp_fn += conf[i][j]
+
+        if tp_fp != 0:
+            precision[i] += row[i]/tp_fp
+
+        if tp_fn != 0:
+            recall[i] += row[i]/tp_fn
+
+        true_total += row[i]
+        false_total += sum(row) - row[i]
+        total += sum(row)
+
+accuracy = float(true_total)/total
+for i in range(0, n_classes):
+    precision[i] = float(precision[i] / 10.0)
+    recall[i] = float(recall[i] /10.0)
+
+treeAcc = accuracy
+
+print "average accuracy over 10 folds: {}".format(accuracy)
+print 
+
+for i in range(0, n_classes):
+    print"average precision for classifier %d over 10 folds: %f" %(i, precision[i])
+    print"average recall for classifier %d over 10 folds: %f" %(i, recall[i])
+    print
+
+
 # TODO: Evaluate another classifier, i.e. SVM, Logistic Regression, k-NN, etc.
 
-clf = svm.LinearSVC()
-tnc = 0
-ttruths = 0
-tfalse = 0
+clf = neighbors.KNeighborsClassifier(n_neighbors = 5, weights="distance")
+true_total = 0
+false_total = 0
+total = 0
 
-avgacc = 0.0
-avgprecisionA = 0.0
-avgprecisionB = 0.0
-avgrecallA = 0.0
-avgrecallB = 0.0
+precision = np.full(n_classes, 0.0)
+recall = np.full(n_classes, 0.0)
 
 for i, (train_indexes, test_indexes) in enumerate(cv):
     X_train = X[train_indexes, :]
@@ -251,67 +225,44 @@ for i, (train_indexes, test_indexes) in enumerate(cv):
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
     
-    laccuracy = 0.0
-    
-    percisionA = 0.0
-    percisionB = 0.0
-    recallA = 0.0
-    recallB = 0.0
-    
     conf = confusion_matrix(y_test, y_pred)
-    # ACCURACY
-    firstRow = conf[0]
-    secondRow = conf[1]
-    
-    truths = firstRow[0]+secondRow[1]
-    false = firstRow[1]+secondRow[0]
-    
-    # PRECISION
-    if((firstRow[0]+secondRow[0]) != 0):
-        percisionA = float(firstRow[0]) / (firstRow[0]+secondRow[0])
-    else:
-        percisionA = 0.0
-    if((secondRow[1]+firstRow[1])!= 0 ):
-        percisionB = float(secondRow[1]) / (firstRow[1] + secondRow[1])
-    else:
-        percisionB = 0.0
-    
-    # RECALL
-    if(sum(firstRow)!=0):
-        recallA = float(firstRow[0]) / sum(firstRow)
-    else:
-        recallA = 0.0
-    if(sum(secondRow)):
-        recallB = float(secondRow[1]) / sum(secondRow)
-    else:
-        recallB = 0.0
 
-    # GLOBAL
-    tnc +=truths+false
-    ttruths+= truths
-    tfalse += false
-
-    avgprecisionA += percisionA
-    avgprecisionB += percisionB
-    avgrecallA += recallA
-    avgrecallB += recallB
-    
-    
     print("Fold {}".format(i))
 
-avgacc = float(ttruths)/tnc
-avgprecisionA /= 10.0
-avgprecisionB /= 10.0
-avgrecallA /= 10.0
-avgrecallB /= 10.0
+    for i in range(0, n_classes):
+        row = conf[i]
 
-clfAcc = avgacc
+        tp_fp = 0.0
+        tp_fn = 0.0
 
-print "average accuracy over 10 folds: {}".format(avgacc)
-print "average percision for classifier A over 10 folds: {}".format(avgprecisionA)
-print "average percision for classifier B over 10 folds: {}".format(avgprecisionB)
-print "average recall for classifier A over 10 folds: {}".format(avgrecallA)
-print "average recall for classifier B over 10 folds: {}".format(avgrecallB)
+        for j in range(0, n_classes):
+            tp_fp += conf[j][i]
+            tp_fn += conf[i][j]
+
+        if tp_fp != 0:
+            precision[i] += row[i]/tp_fp
+
+        if tp_fn != 0:
+            recall[i] += row[i]/tp_fn
+
+        true_total += row[i]
+        false_total += sum(row) - row[i]
+        total += sum(row)
+
+accuracy = float(true_total)/total
+for i in range(0, n_classes):
+    precision[i] = float(precision[i] / 10.0)
+    recall[i] = float(recall[i] /10.0)
+
+clfAcc = accuracy
+
+print "average accuracy over 10 folds: {}".format(accuracy)
+print 
+
+for i in range(0, n_classes):
+    print"average precision for classifier %d over 10 folds: %f" %(i, precision[i])
+    print"average recall for classifier %d over 10 folds: %f" %(i, recall[i])
+    print
 # TODO: Once you have collected data, train your best model on the entire
 # dataset. Then save it to disk as follows:
 
