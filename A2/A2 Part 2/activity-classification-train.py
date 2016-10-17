@@ -148,7 +148,7 @@ n_classes = len(class_names)
 
 # TODO: Train and evaluate your decision tree classifier over 10-fold CV.
 # Report average accuracy, precision and recall metrics.
-tree = DecisionTreeClassifier(criterion="entropy", max_depth=10)
+tree = DecisionTreeClassifier(criterion="entropy", max_depth=7, max_features = n_features)
 cv = cross_validation.KFold(n, n_folds=10, shuffle=False, random_state=None)
 true_total = 0
 false_total = 0
@@ -208,7 +208,7 @@ for i in range(0, n_classes):
 
 # TODO: Evaluate another classifier, i.e. SVM, Logistic Regression, k-NN, etc.
 
-clf = neighbors.KNeighborsClassifier(n_neighbors = 5, weights="distance")
+clf = neighbors.KNeighborsClassifier(n_neighbors = 2, weights="distance")
 true_total = 0
 false_total = 0
 total = 0
