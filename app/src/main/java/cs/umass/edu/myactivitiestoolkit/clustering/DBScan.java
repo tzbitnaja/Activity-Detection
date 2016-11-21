@@ -140,6 +140,12 @@ public class DBScan<T extends Clusterable<T>> {
     private List<T> regionQuery(final T p, final Collection<T> points) {
         //TODO: Query the region around point p to get its neighbors, that is all points within eps of p
         final List<T> neighbors = new ArrayList<T>();
+
+        for (final T neighbor : points){
+            if (p != neighbor && neighbor.distance(p) <= getEps())
+                neighbors.add(neighbor);
+        }
+
         return neighbors;
     }
 
