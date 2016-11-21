@@ -43,7 +43,9 @@ public class DBScan<T extends Clusterable<T>> {
         /** The point has been visited and has determined to be noise (no cluster) */
         NOISE,
         /** The point has been assigned to a cluster. */
-        CLUSTERED
+        CLUSTERED,
+
+        VISITED
     }
 
     /**
@@ -95,14 +97,21 @@ public class DBScan<T extends Clusterable<T>> {
         }
 
         //TODO: Implement the DBScan algorithm - currently the code returns a single cluster containing all points
+        for(final T p : points){
+            if(states.get(p) == State.UNVISITED){
+                final List<T> neighbors = regionQuery(p, points);
 
-        //TODO: The following block of code adds all points to a single cluster. Make sure to remove this!
-        {
-            Cluster<T> fakeCluster = new Cluster<T>();
-            for (final T p : points)
-                fakeCluster.addPoint(p);
-            clusters.add(fakeCluster);
+                if(neighbors.size() >= minPts){
+                    final Cluster<T> cluster = new Cluster<T>();
+                    expandCluster(cluster, p, states, neighbors, points);
+                    clusters.add(cluster);
+                }
+                else{
+                    states.put(p, State.NOISE);
+                }
+            }
         }
+
 
         return clusters;
 
@@ -127,6 +136,22 @@ public class DBScan<T extends Clusterable<T>> {
         states.put(p, State.CLUSTERED);
 
         //TODO: Complete the rest of the expandCluster algorithm, as outlined in the slides
+        ArrayList<T> seeds = new ArrayList<T>(neighborPts);
+
+        for(final T n : neighborPts){
+            if(states.get(n) == State.UNVISITED){
+                List<T> expand = regionQuery(n, neighborPts);
+
+                if(expand.size() >= minPts){
+                    addAsSet(seeds, expand);
+                }
+            }
+            if(states.get(n) != State.CLUSTERED){
+                states.put(n, State.CLUSTERED);
+                cluster.addPoint(n);
+            }
+        }
+
     }
 
     /**
