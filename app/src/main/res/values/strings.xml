@@ -48,4 +48,5 @@
     <string name="text_switch_gps">Location</string>
 
     <string name="app_details">CS390MB : Mobile Health Sensing</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
