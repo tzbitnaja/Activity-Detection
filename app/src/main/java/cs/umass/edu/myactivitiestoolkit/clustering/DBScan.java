@@ -99,10 +99,11 @@ public class DBScan<T extends Clusterable<T>> {
         //TODO: Implement the DBScan algorithm - currently the code returns a single cluster containing all points
         for(final T p : points){
             if(states.get(p) == State.UNVISITED){
-                final List<T> neighbors = regionQuery(p, points);
+                states.put(p, State.VISITED);
+                List<T> neighbors = regionQuery(p, points);
 
                 if(neighbors.size() >= minPts){
-                    final Cluster<T> cluster = new Cluster<T>();
+                    Cluster<T> cluster = new Cluster<T>();
                     expandCluster(cluster, p, states, neighbors, points);
                     clusters.add(cluster);
                 }
@@ -136,14 +137,15 @@ public class DBScan<T extends Clusterable<T>> {
         states.put(p, State.CLUSTERED);
 
         //TODO: Complete the rest of the expandCluster algorithm, as outlined in the slides
-        ArrayList<T> seeds = new ArrayList<T>(neighborPts);
+        ArrayList<T> neighborsOriginal = new ArrayList<T>(neighborPts);
 
         for(final T n : neighborPts){
             if(states.get(n) == State.UNVISITED){
-                List<T> expand = regionQuery(n, neighborPts);
+                states.put(n, State.VISITED);
+                List<T> neighborsPrime = regionQuery(n, neighborPts);
 
-                if(expand.size() >= minPts){
-                    addAsSet(seeds, expand);
+                if(neighborsPrime.size() >= minPts){
+                    addAsSet(neighborsOriginal, neighborsPrime);
                 }
             }
             if(states.get(n) != State.CLUSTERED){
