@@ -18,13 +18,15 @@ import com.microsoft.band.sensors.BandAccelerometerEventListener;
 import com.microsoft.band.sensors.BandGyroscopeEvent;
 import com.microsoft.band.sensors.BandGyroscopeEventListener;
 import com.microsoft.band.sensors.SampleRate;
+import com.microsoft.band.sensors.BandHeartRateEvent;
+import com.microsoft.band.sensors.BandHeartRateEventListener;
 
 import cs.umass.edu.myactivitiestoolkit.R;
 import cs.umass.edu.myactivitiestoolkit.constants.Constants;
 import cs.umass.edu.myactivitiestoolkit.services.SensorService;
 import edu.umass.cs.MHLClient.sensors.AccelerometerReading;
 import edu.umass.cs.MHLClient.sensors.GyroscopeReading;
-
+import cs.umass.edu.myactivitiestoolkit.ppg.HRSensorReading;
 /**
  * The BandService is responsible for starting and stopping the sensors on the Band and receiving
  * accelerometer and gyroscope data periodically. It is a foreground service, so that the user
@@ -39,7 +41,7 @@ import edu.umass.cs.MHLClient.sensors.GyroscopeReading;
  * @see BandClient
  * @see BandGyroscopeEventListener
  */
-public class BandService extends SensorService implements BandGyroscopeEventListener {
+public class BandService extends SensorService implements BandGyroscopeEventListener,BandHeartRateEventListener {
 
     /** used for debugging purposes */
     private static final String TAG = BandService.class.getName();
@@ -55,6 +57,12 @@ public class BandService extends SensorService implements BandGyroscopeEventList
     @Override
     protected void onServiceStopped() {
         broadcastMessage(Constants.MESSAGE.BAND_SERVICE_STOPPED);
+    }
+
+    @Override
+    public void onBandHeartRateChanged(BandHeartRateEvent bandHeartRateEvent) {
+        int HR =  bandHeartRateEvent.getHeartRate();
+        mClient.sendSensorReading(new HRSensorReading(mUserID,"","nexus6p",System.currentTimeMillis(), HR )); // send heart rate to server
     }
 
     /**
@@ -74,6 +82,7 @@ public class BandService extends SensorService implements BandGyroscopeEventList
                 if (getConnectedBandClient()) {
                     broadcastStatus(getString(R.string.status_connected));
                     bandClient.getSensorManager().registerGyroscopeEventListener(BandService.this, SampleRate.MS16);
+                    bandClient.getSensorManager().registerHeartRateEventListener(BandService.this); // registered Heart rate sensor
                 } else {
                     broadcastStatus(getString(R.string.status_not_connected));
                 }
