@@ -18,17 +18,12 @@ import android.widget.TextView;
 
 import cs.umass.edu.myactivitiestoolkit.R;
 import cs.umass.edu.myactivitiestoolkit.constants.Constants;
-import cs.umass.edu.myactivitiestoolkit.services.msband.BandService;
 import cs.umass.edu.myactivitiestoolkit.view.fragments.AboutFragment;
 import cs.umass.edu.myactivitiestoolkit.view.fragments.AudioFragment;
 import cs.umass.edu.myactivitiestoolkit.view.fragments.ExerciseFragment;
 import cs.umass.edu.myactivitiestoolkit.view.fragments.HeartRateFragment;
 import cs.umass.edu.myactivitiestoolkit.view.fragments.LocationsFragment;
 import cs.umass.edu.myactivitiestoolkit.view.fragments.SettingsFragment;
-
-import com.microsoft.band.sensors.HeartRateConsentListener;
-import com.microsoft.band.BandClient;
-
 
 /**
  * The main activity is the entry point for the application. It is the primary UI and allows
@@ -44,17 +39,11 @@ import com.microsoft.band.BandClient;
  *
  * @author Sean Noran
  */
-public class MainActivity extends AppCompatActivity implements HeartRateConsentListener {
+public class MainActivity extends AppCompatActivity {
 
     @SuppressWarnings("unused")
     /** used for debugging purposes */
     private static final String TAG = MainActivity.class.getName();
-
-    @Override
-    public void userAccepted(boolean b) {
-
-    }
-
 
     /**
      * Defines all available tabs in the main UI. For help on enums,
@@ -194,9 +183,6 @@ public class MainActivity extends AppCompatActivity implements HeartRateConsentL
     /** Displays status messages, e.g. connection station. **/
     private TextView txtStatus;
 
-
-
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -227,7 +213,6 @@ public class MainActivity extends AppCompatActivity implements HeartRateConsentL
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
-        BandService.setContext(this);
         /* Maintains the tabs and the tab layout interactions. */
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         viewPager.setAdapter(new FragmentPagerAdapter(getFragmentManager()) {
@@ -281,7 +266,6 @@ public class MainActivity extends AppCompatActivity implements HeartRateConsentL
                     break;
             }
         }
-
     }
 
     @Override

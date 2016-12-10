@@ -1,11 +1,8 @@
 package cs.umass.edu.myactivitiestoolkit.services.msband;
 
-import android.app.Activity;
 import android.app.Notification;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
@@ -17,7 +14,6 @@ import com.microsoft.band.BandException;
 import com.microsoft.band.BandIOException;
 import com.microsoft.band.BandInfo;
 import com.microsoft.band.ConnectionState;
-import com.microsoft.band.UserConsent;
 import com.microsoft.band.sensors.BandAccelerometerEventListener;
 import com.microsoft.band.sensors.BandGyroscopeEvent;
 import com.microsoft.band.sensors.BandGyroscopeEventListener;
@@ -28,7 +24,6 @@ import com.microsoft.band.sensors.BandHeartRateEventListener;
 import cs.umass.edu.myactivitiestoolkit.R;
 import cs.umass.edu.myactivitiestoolkit.constants.Constants;
 import cs.umass.edu.myactivitiestoolkit.services.SensorService;
-import cs.umass.edu.myactivitiestoolkit.view.activities.MainActivity;
 import edu.umass.cs.MHLClient.sensors.AccelerometerReading;
 import edu.umass.cs.MHLClient.sensors.GyroscopeReading;
 import cs.umass.edu.myactivitiestoolkit.ppg.HRSensorReading;
@@ -50,13 +45,9 @@ public class BandService extends SensorService implements BandGyroscopeEventList
 
     /** used for debugging purposes */
     private static final String TAG = BandService.class.getName();
-    private Activity main = null;
-    static Context ct = null;
-    private int heartRate = -1;
 
     /** The object which receives sensor data from the Microsoft Band */
     private BandClient bandClient = null;
-    private SensorManager bSensorManager;
 
     @Override
     protected void onServiceStarted() {
@@ -71,10 +62,7 @@ public class BandService extends SensorService implements BandGyroscopeEventList
     @Override
     public void onBandHeartRateChanged(BandHeartRateEvent bandHeartRateEvent) {
         int HR =  bandHeartRateEvent.getHeartRate();
-        heartRate = HR;
-        broadcastBPM(HR);
-        Log.d(TAG,"sending the heart rate from band "+HR);
-       // mClient.sendSensorReading(new HRSensorReading(mUserID,"","nexus6p",System.currentTimeMillis(), HR )); // send heart rate to server
+        mClient.sendSensorReading(new HRSensorReading(mUserID,"","nexus6p",System.currentTimeMillis(), HR )); // send heart rate to server
     }
 
     /**
@@ -91,7 +79,6 @@ public class BandService extends SensorService implements BandGyroscopeEventList
         @Override
         protected Void doInBackground(Void... params) {
             try {
-
                 if (getConnectedBandClient()) {
                     broadcastStatus(getString(R.string.status_connected));
                     bandClient.getSensorManager().registerGyroscopeEventListener(BandService.this, SampleRate.MS16);
@@ -132,18 +119,10 @@ public class BandService extends SensorService implements BandGyroscopeEventList
         if (bandClient == null) {
             BandInfo[] devices = BandClientManager.getInstance().getPairedBands();
             if (devices.length == 0) {
-                Log.d(TAG,"didn't find any paired bands");
                 broadcastStatus(getString(R.string.status_not_paired));
                 return false;
             }
             bandClient = BandClientManager.getInstance().create(getBaseContext(), devices[0]);
-            if(bandClient.getSensorManager().getCurrentHeartRateConsent() !=
-                    UserConsent.GRANTED) {
-                // user hasn’t consented, request consent
-                // the calling class is an Activity and implements
-                // HeartRateConsentListener
-                bandClient.getSensorManager().requestHeartRateConsent((MainActivity)ct,(MainActivity)ct);
-            }
         } else if (ConnectionState.CONNECTED == bandClient.getConnectionState()) {
             return true;
         }
@@ -203,21 +182,17 @@ public class BandService extends SensorService implements BandGyroscopeEventList
     @Override
     public void onBandGyroscopeChanged(BandGyroscopeEvent event) {
         //TODO: Remove code from starter code
-        int label = 0;
-
         Object[] data = new Object[]{event.getTimestamp(),
                 event.getAccelerationX(), event.getAccelerationY(), event.getAccelerationZ(),
                 event.getAngularVelocityX(), event.getAngularVelocityY(), event.getAngularVelocityZ()};
-        mClient.sendSensorReading(new AccelerometerReading(mUserID, "", "", event.getTimestamp(), label,
+        mClient.sendSensorReading(new AccelerometerReading(mUserID, "", "", event.getTimestamp(),
                 event.getAccelerationX(), event.getAccelerationY(), event.getAccelerationZ()));
         broadcastAccelerometerReading(event.getTimestamp(),
                 event.getAccelerationX(), event.getAccelerationY(), event.getAccelerationZ());
-        mClient.sendSensorReading(new GyroscopeReading(mUserID, "", "", event.getTimestamp(), label,
+        mClient.sendSensorReading(new GyroscopeReading(mUserID, "", "", event.getTimestamp(),
                 event.getAngularVelocityX(), event.getAngularVelocityY(), event.getAngularVelocityZ()));
-        mClient.sendSensorReading(new HRSensorReading(mUserID,"","",event.getTimestamp(),heartRate));
-        Log.d(TAG,heartRate+"");
         String sample = TextUtils.join(",", data);
-        //Log.d(TAG, sample);
+        Log.d(TAG, sample);
     }
 
     //TODO: Remove method from starter code
@@ -232,17 +207,5 @@ public class BandService extends SensorService implements BandGyroscopeEventList
         intent.setAction(Constants.ACTION.BROADCAST_ACCELEROMETER_DATA);
         LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
         manager.sendBroadcast(intent);
-    }
-
-    public void broadcastBPM(final int bpm) {
-        Intent intent = new Intent();
-        intent.putExtra(Constants.KEY.HEART_RATE, bpm);
-        intent.setAction(Constants.ACTION.BROADCAST_HEART_RATE);
-        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
-        manager.sendBroadcast(intent);
-    }
-
-    public static void setContext(Context ctx){
-        ct = ctx;
     }
 }

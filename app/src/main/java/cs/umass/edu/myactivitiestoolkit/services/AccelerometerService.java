@@ -18,7 +18,6 @@ import java.util.Locale;
 import cs.umass.edu.myactivitiestoolkit.R;
 import cs.umass.edu.myactivitiestoolkit.constants.Constants;
 import cs.umass.edu.myactivitiestoolkit.processing.Filter;
-import cs.umass.edu.myactivitiestoolkit.services.msband.BandService;
 import cs.umass.edu.myactivitiestoolkit.steps.OnStepListener;
 import cs.umass.edu.myactivitiestoolkit.steps.StepDetector;
 import edu.umass.cs.MHLClient.client.MessageReceiver;
@@ -87,7 +86,7 @@ import edu.umass.cs.MHLClient.sensors.SensorReading;
 public class AccelerometerService extends SensorService implements SensorEventListener,OnStepListener {
 
     int serverStepCount = 0;
-    private BandService band = null;
+
 
     /** Used during debugging to identify logs by class */
     private static final String TAG = AccelerometerService.class.getName();
@@ -176,11 +175,11 @@ public class AccelerometerService extends SensorService implements SensorEventLi
         //TODO : (Assignment 0) Register the accelerometer sensor from the sensor manager.
         mSensorManager.registerListener(this,mAccelerometerSensor,SensorManager.SENSOR_DELAY_NORMAL);
 
-
         //TODO : (Assignment 1) Register your step detector. Register an OnStepListener to receive step events
 //        mSensorManager.registerListener(this,mStepSensor,SensorManager.SENSOR_DELAY_NORMAL);
         mStepDetector.registerOnStepListener(this);
         mSensorManager.registerListener(mStepDetector,mAccelerometerSensor,SensorManager.SENSOR_DELAY_NORMAL);
+
     }
 
     /**

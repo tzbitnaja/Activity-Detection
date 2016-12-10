@@ -27,7 +27,6 @@ import com.androidplot.xy.StepMode;
 import com.androidplot.xy.XYGraphWidget;
 import com.androidplot.xy.XYPlot;
 import com.androidplot.xy.XYSeries;
-import com.microsoft.band.sensors.HeartRateConsentListener;
 
 import java.text.FieldPosition;
 import java.text.Format;
@@ -442,6 +441,4 @@ public class ExerciseFragment extends Fragment {
         mPlot.addSeries(peaks, mPeakSeriesFormatter);
         mPlot.redraw();
     }
-
-
 }
