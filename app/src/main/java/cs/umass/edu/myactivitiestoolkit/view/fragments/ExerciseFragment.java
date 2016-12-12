@@ -182,24 +182,24 @@ public class ExerciseFragment extends Fragment {
                     float[] accelerometerValues = intent.getFloatArrayExtra(Constants.KEY.ACCELEROMETER_DATA);
                     displayAccelerometerReading(accelerometerValues[0], accelerometerValues[1], accelerometerValues[2]);
 
-                    mTimestamps.add(timestamp);
-                    mXValues.add(accelerometerValues[0]);
-                    mYValues.add(accelerometerValues[1]);
-                    mZValues.add(accelerometerValues[2]);
-                    if (mNumberOfPoints >= GRAPH_CAPACITY) {
-                        mTimestamps.poll();
-                        mXValues.poll();
-                        mYValues.poll();
-                        mZValues.poll();
-                        while (mPeakTimestamps.size() > 0 && (mPeakTimestamps.peek().longValue() < mTimestamps.peek().longValue())){
-                            mPeakTimestamps.poll();
-                            mPeakValues.poll();
-                        }
-                    }
-                    else
-                        mNumberOfPoints++;
-
-                    updatePlot();
+//                    mTimestamps.add(timestamp);
+//                    mXValues.add(accelerometerValues[0]);
+//                    mYValues.add(accelerometerValues[1]);
+//                    mZValues.add(accelerometerValues[2]);
+//                    if (mNumberOfPoints >= GRAPH_CAPACITY) {
+//                        mTimestamps.poll();
+//                        mXValues.poll();
+//                        mYValues.poll();
+//                        mZValues.poll();
+//                        while (mPeakTimestamps.size() > 0 && (mPeakTimestamps.peek().longValue() < mTimestamps.peek().longValue())){
+//                            mPeakTimestamps.poll();
+//                            mPeakValues.poll();
+//                        }
+//                    }
+//                    else
+//                        mNumberOfPoints++;
+//
+//                 //   updatePlot();
                 } else if (intent.getAction().equals(Constants.ACTION.BROADCAST_ANDROID_STEP_COUNT)) {
                     int stepCount = intent.getIntExtra(Constants.KEY.STEP_COUNT, 0);
                     displayAndroidStepCount(stepCount);
@@ -242,9 +242,9 @@ public class ExerciseFragment extends Fragment {
         txtAccelerometerReading = (TextView) view.findViewById(R.id.txtAccelerometerReading);
 
         //obtain references to the step count text fields
-        txtAndroidStepCount = (TextView) view.findViewById(R.id.txtAndroidStepCount);
-        txtLocalStepCount = (TextView) view.findViewById(R.id.txtLocalStepCount);
-        txtServerStepCount = (TextView) view.findViewById(R.id.txtServerStepCount);
+//        txtAndroidStepCount = (TextView) view.findViewById(R.id.txtAndroidStepCount);
+//        txtLocalStepCount = (TextView) view.findViewById(R.id.txtLocalStepCount);
+//        txtServerStepCount = (TextView) view.findViewById(R.id.txtServerStepCount);
 
         //obtain reference to the activity text field
         txtActivity = (TextView) view.findViewById(R.id.txtActivity);
@@ -256,7 +256,7 @@ public class ExerciseFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean enabled) {
                 if (enabled){
-                    clearPlotData();
+//                    clearPlotData();
 
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
                     boolean runOverMSBand = preferences.getBoolean(getString(R.string.pref_msband_key),
@@ -274,35 +274,35 @@ public class ExerciseFragment extends Fragment {
         });
 
         // initialize plot and set plot parameters
-        mPlot = (XYPlot) view.findViewById(R.id.accelerometerPlot);
-        mPlot.setRangeBoundaries(-30, 30, BoundaryMode.FIXED);
-        mPlot.setRangeStep(StepMode.SUBDIVIDE, 5);
-        mPlot.getGraph().getDomainOriginLinePaint().setColor(Color.TRANSPARENT);
-        mPlot.getGraph().getDomainGridLinePaint().setColor(Color.TRANSPARENT);
-        mPlot.getGraph().getRangeGridLinePaint().setColor(Color.TRANSPARENT);
-        mPlot.setDomainStep(StepMode.SUBDIVIDE, 1);
-
-        // To remove the x labels, just set each label to an empty string:
-        mPlot.getGraph().getLineLabelStyle(XYGraphWidget.Edge.BOTTOM).setFormat(new Format() {
-            @Override
-            public StringBuffer format(Object obj, @NonNull StringBuffer toAppendTo, @NonNull FieldPosition pos) {
-                return toAppendTo.append("");
-            }
-            @Override
-            public Object parseObject(String source, @NonNull ParsePosition pos) {
-                return null;
-            }
-        });
-        mPlot.setPlotPaddingBottom(-150); //TODO: This isn't device-dependent, and may need to be changed.
-        mPlot.getLegend().setPaddingBottom(280);
-
-        // set formatting parameters for each signal (accelerometer and accelerometer peaks)
-        mXSeriesFormatter = new LineAndPointFormatter(Color.RED, null, null, null);
-        mYSeriesFormatter = new LineAndPointFormatter(Color.GREEN, null, null, null);
-        mZSeriesFormatter = new LineAndPointFormatter(Color.BLUE, null, null, null);
-
-        mPeakSeriesFormatter = new LineAndPointFormatter(null, Color.BLUE, null, null);
-        mPeakSeriesFormatter.getVertexPaint().setStrokeWidth(PixelUtils.dpToPix(10)); //enlarge the peak points
+//        mPlot = (XYPlot) view.findViewById(R.id.accelerometerPlot);
+//        mPlot.setRangeBoundaries(-30, 30, BoundaryMode.FIXED);
+//        mPlot.setRangeStep(StepMode.SUBDIVIDE, 5);
+//        mPlot.getGraph().getDomainOriginLinePaint().setColor(Color.TRANSPARENT);
+//        mPlot.getGraph().getDomainGridLinePaint().setColor(Color.TRANSPARENT);
+//        mPlot.getGraph().getRangeGridLinePaint().setColor(Color.TRANSPARENT);
+//        mPlot.setDomainStep(StepMode.SUBDIVIDE, 1);
+//
+//        // To remove the x labels, just set each label to an empty string:
+//        mPlot.getGraph().getLineLabelStyle(XYGraphWidget.Edge.BOTTOM).setFormat(new Format() {
+//            @Override
+//            public StringBuffer format(Object obj, @NonNull StringBuffer toAppendTo, @NonNull FieldPosition pos) {
+//                return toAppendTo.append("");
+//            }
+//            @Override
+//            public Object parseObject(String source, @NonNull ParsePosition pos) {
+//                return null;
+//            }
+//        });
+//        mPlot.setPlotPaddingBottom(-150); //TODO: This isn't device-dependent, and may need to be changed.
+//        mPlot.getLegend().setPaddingBottom(280);
+//
+//        // set formatting parameters for each signal (accelerometer and accelerometer peaks)
+//        mXSeriesFormatter = new LineAndPointFormatter(Color.RED, null, null, null);
+//        mYSeriesFormatter = new LineAndPointFormatter(Color.GREEN, null, null, null);
+//        mZSeriesFormatter = new LineAndPointFormatter(Color.BLUE, null, null, null);
+//
+//        mPeakSeriesFormatter = new LineAndPointFormatter(null, Color.BLUE, null, null);
+//        mPeakSeriesFormatter.getVertexPaint().setStrokeWidth(PixelUtils.dpToPix(10)); //enlarge the peak points
 
         return view;
     }

@@ -16,8 +16,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.widget.TextView;
 
+import com.microsoft.band.sensors.HeartRateConsentListener;
+
 import cs.umass.edu.myactivitiestoolkit.R;
 import cs.umass.edu.myactivitiestoolkit.constants.Constants;
+import cs.umass.edu.myactivitiestoolkit.services.msband.BandService;
 import cs.umass.edu.myactivitiestoolkit.view.fragments.AboutFragment;
 import cs.umass.edu.myactivitiestoolkit.view.fragments.AudioFragment;
 import cs.umass.edu.myactivitiestoolkit.view.fragments.ExerciseFragment;
@@ -39,11 +42,16 @@ import cs.umass.edu.myactivitiestoolkit.view.fragments.SettingsFragment;
  *
  * @author Sean Noran
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements HeartRateConsentListener {
 
     @SuppressWarnings("unused")
     /** used for debugging purposes */
     private static final String TAG = MainActivity.class.getName();
+
+    @Override
+    public void userAccepted(boolean b) {
+
+    }
 
     /**
      * Defines all available tabs in the main UI. For help on enums,
@@ -266,6 +274,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
         }
+        BandService.setContext(this);
     }
 
     @Override

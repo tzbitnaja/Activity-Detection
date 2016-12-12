@@ -16,6 +16,7 @@ import com.microsoft.band.BandException;
 import com.microsoft.band.BandIOException;
 import com.microsoft.band.BandInfo;
 import com.microsoft.band.ConnectionState;
+import com.microsoft.band.UserConsent;
 import com.microsoft.band.sensors.BandAccelerometerEventListener;
 import com.microsoft.band.sensors.BandGyroscopeEvent;
 import com.microsoft.band.sensors.BandGyroscopeEventListener;
@@ -27,6 +28,7 @@ import cs.umass.edu.myactivitiestoolkit.R;
 import cs.umass.edu.myactivitiestoolkit.constants.Constants;
 import cs.umass.edu.myactivitiestoolkit.processing.Filter;
 import cs.umass.edu.myactivitiestoolkit.services.SensorService;
+import cs.umass.edu.myactivitiestoolkit.view.activities.MainActivity;
 import edu.umass.cs.MHLClient.sensors.AccelerometerReading;
 import edu.umass.cs.MHLClient.sensors.GyroscopeReading;
 import cs.umass.edu.myactivitiestoolkit.ppg.HRSensorReading;
@@ -74,15 +76,14 @@ public class BandService extends SensorService implements BandGyroscopeEventList
     @Override
     public void onBandHeartRateChanged(BandHeartRateEvent bandHeartRateEvent) {
 
-        double heartRate =  bandHeartRateEvent.getHeartRate();
-
+        heartRate = bandHeartRateEvent.getHeartRate();
         broadcastBPM((int) heartRate);
 
         Log.d(TAG,"sending the heart rate from band "+(int)heartRate);
         // mClient.sendSensorReading(new HRSensorReading(mUserID,"","nexus6p",System.currentTimeMillis(), HR )); // send heart rate to server
 
-        int HR =  bandHeartRateEvent.getHeartRate();
-        mClient.sendSensorReading(new HRSensorReading(mUserID,"","nexus6p",System.currentTimeMillis(), HR )); // send heart rate to server
+        //int HR =  bandHeartRateEvent.getHeartRate();
+        //mClient.sendSensorReading(new HRSensorReading(mUserID,"","nexus6p",System.currentTimeMillis(), HR )); // send heart rate to server
     }
 
     /**
@@ -143,6 +144,13 @@ public class BandService extends SensorService implements BandGyroscopeEventList
                 return false;
             }
             bandClient = BandClientManager.getInstance().create(getBaseContext(), devices[0]);
+            if(bandClient.getSensorManager().getCurrentHeartRateConsent() !=
+                    UserConsent.GRANTED) {
+// user hasn’t consented, request consent
+                // the calling class is an Activity and implements
+                // HeartRateConsentListener
+                bandClient.getSensorManager().requestHeartRateConsent((MainActivity)ct, (MainActivity)ct);
+            }
         } else if (ConnectionState.CONNECTED == bandClient.getConnectionState()) {
             return true;
         }
@@ -202,9 +210,9 @@ public class BandService extends SensorService implements BandGyroscopeEventList
     @Override
     public void onBandGyroscopeChanged(BandGyroscopeEvent event) {
         //TODO: Remove code from starter code
-        Object[] data = new Object[]{event.getTimestamp(),
-                event.getAccelerationX(), event.getAccelerationY(), event.getAccelerationZ(),
-                event.getAngularVelocityX(), event.getAngularVelocityY(), event.getAngularVelocityZ()};
+//        Object[] data = new Object[]{event.getTimestamp(),
+//                event.getAccelerationX(), event.getAccelerationY(), event.getAccelerationZ(),
+//                event.getAngularVelocityX(), event.getAngularVelocityY(), event.getAngularVelocityZ()};
 
         float [] accel = accelFilter.getFilteredValues(new float[]{event.getAccelerationX()*10, event.getAccelerationY()*10, event.getAccelerationZ()*10});
         Log.d(TAG,"accel readings: x" + accel[0] + ", y " + accel[1] + ", z " + accel[2]);
@@ -212,36 +220,32 @@ public class BandService extends SensorService implements BandGyroscopeEventList
         float [] gyro = gyroFilter.getFilteredValues(new float[]{event.getAngularVelocityX(), event.getAngularVelocityY(), event.getAngularVelocityZ()});
         Log.d(TAG,"gyro readings: x" + gyro[0] + ", y " + gyro[1] + ", z " + gyro[2]);
 
-        broadcastAccelerometerReading(event.getTimestamp(),
-                accel[0], accel[1], accel[2]);
+//        broadcastAccelerometerReading(event.getTimestamp(),
+//                accel[0], accel[1], accel[2]);
 
-        mClient.sendSensorReading(new AccelerometerReading(mUserID, "", "", event.getTimestamp(), 0,
-                accel[0], accel[1], accel[2]));
+//        mClient.sendSensorReading(new AccelerometerReading(mUserID, "", "", event.getTimestamp(), 0,
+//                accel[0], accel[1], accel[2]));
 
-        mClient.sendSensorReading(new GyroscopeReading(mUserID, "", "", event.getTimestamp(), 0,
-                gyro[0], gyro[1], gyro[2]));
+        //mClient.sendSensorReading(new GyroscopeReading(mUserID, "", "", event.getTimestamp(), 0,
+//                gyro[0], gyro[1], gyro[2]));
 
-        mClient.sendSensorReading(new HRSensorReading(mUserID,"","",event.getTimestamp(),heartRate));
+//        mClient.sendSensorReading(new HRSensorReading(mUserID,"","",event.getTimestamp(),heartRate));
 
 
-        int label = 0;
+//        int label = 7;
         /*label key:
                 0 -- sitting
-                1 -- laying down
-                2 -- using the computer (typing, using the mouse)
-                3 -- driving
-                4 -- walking
-                5 -- running
-                6 -- jumping jacks
-                7 -- playing tennis
+                1 -- Running
+                2 -- Shadow Boxing
+                3 -- Macarena
          */
 
-        mClient.sendSensorReading(new BandSensorReading(mUserID,"","", event.getTimestamp(), 0, heartRate,
+        mClient.sendSensorReading(new BandSensorReading(mUserID,"","", event.getTimestamp(),0, heartRate,
                 accel[0], accel[1], accel[2],
                 gyro[0], gyro[1], gyro[2]));
 
-        String sample = TextUtils.join(",", data);
-        Log.d(TAG, sample);
+        //String sample = TextUtils.join(",", data);
+//        Log.d(TAG, sample);
     }
 
     //TODO: Remove method from starter code
