@@ -144,22 +144,22 @@ public class AccelerometerService extends SensorService implements SensorEventLi
                 }
             }
         });
-        mClient.registerMessageReceiver(new MessageReceiver(Constants.MHLClientFilter.ACTIVITY_DETECTED) {
-            @Override
-            protected void onMessageReceived(JSONObject json) {
-                String activity;
-                try {
-                    JSONObject data = json.getJSONObject("data");
-                    activity = data.getString("activity");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    return;
-                }
-                // TODO : broadcast activity to UI
-                broadcastStatus(activity);
-
-            }
-        });
+//        mClient.registerMessageReceiver(new MessageReceiver(Constants.MHLClientFilter.ACTIVITY_DETECTED) {
+//            @Override
+//            protected void onMessageReceived(JSONObject json) {
+//                String activity;
+//                try {
+//                    JSONObject data = json.getJSONObject("data");
+//                    activity = data.getString("activity");
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                    return;
+//                }
+//                // TODO : broadcast activity to UI
+//                broadcastStatus(activity);
+//
+//            }
+//        });
     }
 
     /**

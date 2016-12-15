@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringDef;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,18 +21,20 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.androidplot.util.PixelUtils;
-import com.androidplot.xy.BoundaryMode;
-import com.androidplot.xy.LineAndPointFormatter;
-import com.androidplot.xy.SimpleXYSeries;
-import com.androidplot.xy.StepMode;
-import com.androidplot.xy.XYGraphWidget;
-import com.androidplot.xy.XYPlot;
-import com.androidplot.xy.XYSeries;
+import com.androidplot.pie.*;
+//import com.androidplot.xy.BoundaryMode;
+//import com.androidplot.xy.LineAndPointFormatter;
+//import com.androidplot.xy.SimpleXYSeries;
+//import com.androidplot.xy.StepMode;
+//import com.androidplot.xy.XYGraphWidget;
+//import com.androidplot.xy.XYPlot;
+//import com.androidplot.xy.XYSeries;
 
 import java.text.FieldPosition;
 import java.text.Format;
 import java.text.ParsePosition;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Queue;
@@ -73,7 +76,6 @@ import cs.umass.edu.myactivitiestoolkit.services.ServiceManager;
  * @author CS390MB
  *
  * @see AccelerometerService
- * @see XYPlot
  * @see Fragment
  */
 public class ExerciseFragment extends Fragment {
@@ -101,56 +103,64 @@ public class ExerciseFragment extends Fragment {
     private TextView txtActivity;
 
     /** The plot which displays the PPG data in real-time. **/
-    private XYPlot mPlot;
+    private PieChart mPlot;
+
+    private Segment s1;
+    private Segment s2;
+    private Segment s3;
+    private Segment s4;
+
+    private HashMap<String,Integer> pieValues = new HashMap<>();
+
 
     /** The series formatter that defines how the x-axis signal should be displayed. **/
-    private LineAndPointFormatter mXSeriesFormatter;
+   // private LineAndPointFormatter mXSeriesFormatter;
 
     /** The series formatter that defines how the y-axis signal should be displayed. **/
-    private LineAndPointFormatter mYSeriesFormatter;
+    //private LineAndPointFormatter mYSeriesFormatter;
 
     /** The series formatter that defines how the z-axis signal should be displayed. **/
-    private LineAndPointFormatter mZSeriesFormatter;
+    //private LineAndPointFormatter mZSeriesFormatter;
 
     /** The series formatter that defines how the peaks should be displayed. **/
-    private LineAndPointFormatter mPeakSeriesFormatter;
+    //private LineAndPointFormatter mPeakSeriesFormatter;
 
     /** The number of data points to display in the graph. **/
-    private static final int GRAPH_CAPACITY = 100;
+    //private static final int GRAPH_CAPACITY = 100;
 
     /** The number of points displayed on the plot. This should only ever be less than
      * {@link #GRAPH_CAPACITY} before the plot is fully populated. **/
-    private int mNumberOfPoints = 0;
+//    private int mNumberOfPoints = 0;
 
     /**
      * The queue of timestamps.
-     */
-    private final Queue<Number> mTimestamps = new LinkedList<>();
-
-    /**
-     * The queue of accelerometer values along the x-axis.
-     */
-    private final Queue<Number> mXValues = new LinkedList<>();
-
-    /**
-     * The queue of accelerometer values along the y-axis.
-     */
-    private final Queue<Number> mYValues = new LinkedList<>();
-
-    /**
-     * The queue of accelerometer values along the z-axis.
-     */
-    private final Queue<Number> mZValues = new LinkedList<>();
-
-    /**
-     * The queue of peak timestamps.
-     */
-    private final Queue<Number> mPeakTimestamps = new LinkedList<>();
-
-    /**
-     * The queue of peak values.
-     */
-    private final Queue<Number> mPeakValues = new LinkedList<>();
+//     */
+//    private final Queue<Number> mTimestamps = new LinkedList<>();
+//
+//    /**
+//     * The queue of accelerometer values along the x-axis.
+//     */
+//    private final Queue<Number> mXValues = new LinkedList<>();
+//
+//    /**
+//     * The queue of accelerometer values along the y-axis.
+//     */
+//    private final Queue<Number> mYValues = new LinkedList<>();
+//
+//    /**
+//     * The queue of accelerometer values along the z-axis.
+//     */
+//    private final Queue<Number> mZValues = new LinkedList<>();
+//
+//    /**
+//     * The queue of peak timestamps.
+//     */
+//    private final Queue<Number> mPeakTimestamps = new LinkedList<>();
+//
+//    /**
+//     * The queue of peak values.
+//     */
+//    private final Queue<Number> mPeakValues = new LinkedList<>();
 
     /** Reference to the service manager which communicates to the {@link AccelerometerService}. **/
     private ServiceManager mServiceManager;
@@ -198,8 +208,8 @@ public class ExerciseFragment extends Fragment {
 //                    }
 //                    else
 //                        mNumberOfPoints++;
-//
-//                 //   updatePlot();
+
+                   // updatePlot();
                 } else if (intent.getAction().equals(Constants.ACTION.BROADCAST_ANDROID_STEP_COUNT)) {
                     int stepCount = intent.getIntExtra(Constants.KEY.STEP_COUNT, 0);
                     displayAndroidStepCount(stepCount);
@@ -210,8 +220,8 @@ public class ExerciseFragment extends Fragment {
                     long timestamp = intent.getLongExtra(Constants.KEY.ACCELEROMETER_PEAK_TIMESTAMP, -1);
                     float[] values = intent.getFloatArrayExtra(Constants.KEY.ACCELEROMETER_PEAK_VALUE);
                     if (timestamp > 0) {
-                        mPeakTimestamps.add(timestamp);
-                        mPeakValues.add(values[2]); //place on z-axis signal
+//                        mPeakTimestamps.add(timestamp);
+//                        mPeakValues.add(values[2]); //place on z-axis signal
                     }
                 }
                 else if(intent.getAction().equals(Constants.ACTION.BROADCAST_SERVER_STEP_COUNT)){
@@ -219,8 +229,13 @@ public class ExerciseFragment extends Fragment {
                     int stepCount = intent.getIntExtra(Constants.KEY.STEP_COUNT, 0);
                     displayServerStepCount(stepCount);
 
-
-
+                }
+                else if(intent.getAction().equals("getting_activity")){
+                    String activity = intent.getStringExtra("my_activity");
+                    Log.d(TAG,"activity recieved from server "+activity);
+                    displayActivity(activity);
+                    pieValues.put(activity, pieValues.get(activity)+1);
+                    updatePlot();
                 }
 
             }
@@ -236,15 +251,19 @@ public class ExerciseFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        pieValues.put("sitting",1);
+        pieValues.put("running",1);
+        pieValues.put("shadow boxing",1);
+        pieValues.put("clapping",1);
         final View view = inflater.inflate(R.layout.fragment_exercise, container, false);
 
         //obtain a reference to the accelerometer reading text field
         txtAccelerometerReading = (TextView) view.findViewById(R.id.txtAccelerometerReading);
 
         //obtain references to the step count text fields
-//        txtAndroidStepCount = (TextView) view.findViewById(R.id.txtAndroidStepCount);
-//        txtLocalStepCount = (TextView) view.findViewById(R.id.txtLocalStepCount);
-//        txtServerStepCount = (TextView) view.findViewById(R.id.txtServerStepCount);
+      txtAndroidStepCount = (TextView) view.findViewById(R.id.txtAndroidStepCount);
+        txtLocalStepCount = (TextView) view.findViewById(R.id.txtLocalStepCount);
+        txtServerStepCount = (TextView) view.findViewById(R.id.txtServerStepCount);
 
         //obtain reference to the activity text field
         txtActivity = (TextView) view.findViewById(R.id.txtActivity);
@@ -256,7 +275,7 @@ public class ExerciseFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean enabled) {
                 if (enabled){
-//                    clearPlotData();
+                    clearPlotData();
 
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
                     boolean runOverMSBand = preferences.getBoolean(getString(R.string.pref_msband_key),
@@ -272,6 +291,15 @@ public class ExerciseFragment extends Fragment {
                 }
             }
         });
+        mPlot = (PieChart) view.findViewById(R.id.mySimplePieChart);
+        s1 = new Segment("sitting",1);
+        s2 = new Segment("running",1);
+        s3 = new Segment("shadow boxing",1);
+        s4 = new Segment("clapping",1);
+        mPlot.addSegment(s1, new SegmentFormatter(Color.RED));
+        mPlot.addSegment(s2,new SegmentFormatter(Color.GREEN));
+        mPlot.addSegment(s3,new SegmentFormatter(Color.GRAY));
+        mPlot.addSegment(s4,new SegmentFormatter(Color.blue(232)));
 
         // initialize plot and set plot parameters
 //        mPlot = (XYPlot) view.findViewById(R.id.accelerometerPlot);
@@ -303,6 +331,8 @@ public class ExerciseFragment extends Fragment {
 //
 //        mPeakSeriesFormatter = new LineAndPointFormatter(null, Color.BLUE, null, null);
 //        mPeakSeriesFormatter.getVertexPaint().setStrokeWidth(PixelUtils.dpToPix(10)); //enlarge the peak points
+        mPlot.getBorderPaint().setColor(Color.TRANSPARENT);
+        mPlot.getBackgroundPaint().setColor(Color.TRANSPARENT);
 
         return view;
     }
@@ -341,6 +371,7 @@ public class ExerciseFragment extends Fragment {
         filter.addAction(Constants.ACTION.BROADCAST_ANDROID_STEP_COUNT);
         filter.addAction(Constants.ACTION.BROADCAST_LOCAL_STEP_COUNT);
         filter.addAction(Constants.ACTION.BROADCAST_SERVER_STEP_COUNT);
+        filter.addAction("getting_activity");
         broadcastManager.registerReceiver(receiver, filter);
     }
 
@@ -391,6 +422,15 @@ public class ExerciseFragment extends Fragment {
      * Displays the step count as computed by the Android built-in step detection algorithm.
      * @param stepCount the number of steps taken since the service started
      */
+
+    private void displayActivity(final String activity){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                txtActivity.setText(activity);
+            }
+        });
+    }
     private void displayAndroidStepCount(final int stepCount){
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -414,31 +454,43 @@ public class ExerciseFragment extends Fragment {
      * Clears the x, y, z and peak plot data series.
      */
     private void clearPlotData(){
-        mPeakTimestamps.clear();
-        mPeakValues.clear();
-        mTimestamps.clear();
-        mXValues.clear();
-        mYValues.clear();
-        mZValues.clear();
-        mNumberOfPoints = 0;
+//        mPeakTimestamps.clear();
+//        mPeakValues.clear();
+//        mTimestamps.clear();
+//        mXValues.clear();
+//        mYValues.clear();
+//        mZValues.clear();
+//        mNumberOfPoints = 0;
+        mPlot.clear();
     }
 
     /**
      * Updates and redraws the accelerometer plot, along with the peaks detected.
      */
     private void updatePlot(){
-        XYSeries xSeries = new SimpleXYSeries(new ArrayList<>(mTimestamps), new ArrayList<>(mXValues), "X");
-        XYSeries ySeries = new SimpleXYSeries(new ArrayList<>(mTimestamps), new ArrayList<>(mYValues), "Y");
-        XYSeries zSeries = new SimpleXYSeries(new ArrayList<>(mTimestamps), new ArrayList<>(mZValues), "Z");
+//        XYSeries xSeries = new SimpleXYSeries(new ArrayList<>(mTimestamps), new ArrayList<>(mXValues), "X");
+//        XYSeries ySeries = new SimpleXYSeries(new ArrayList<>(mTimestamps), new ArrayList<>(mYValues), "Y");
+//        XYSeries zSeries = new SimpleXYSeries(new ArrayList<>(mTimestamps), new ArrayList<>(mZValues), "Z");
+//
+//        XYSeries peaks = new SimpleXYSeries(new ArrayList<>(mPeakTimestamps), new ArrayList<>(mPeakValues), "PEAKS");
+//
+//        //redraw the plot:
+//        mPlot.clear();
+//        mPlot.addSeries(xSeries, mXSeriesFormatter);
+//        mPlot.addSeries(ySeries, mYSeriesFormatter);
+//        mPlot.addSeries(zSeries, mZSeriesFormatter);
+//        mPlot.addSeries(peaks, mPeakSeriesFormatter);
 
-        XYSeries peaks = new SimpleXYSeries(new ArrayList<>(mPeakTimestamps), new ArrayList<>(mPeakValues), "PEAKS");
+        s1 = new Segment("sitting",pieValues.get("sitting"));
+        s2 = new Segment("running",pieValues.get("running"));
+        s3 = new Segment("shadow boxing",pieValues.get("shadow boxing"));
+        s4 = new Segment("clapping",pieValues.get("clapping"));
+        clearPlotData();
+        mPlot.addSegment(s1,new SegmentFormatter(Color.RED));
+        mPlot.addSegment(s2,new SegmentFormatter(Color.BLUE));
+        mPlot.addSegment(s3,new SegmentFormatter(Color.GRAY));
+        mPlot.addSegment(s4,new SegmentFormatter(Color.GREEN));
 
-        //redraw the plot:
-        mPlot.clear();
-        mPlot.addSeries(xSeries, mXSeriesFormatter);
-        mPlot.addSeries(ySeries, mYSeriesFormatter);
-        mPlot.addSeries(zSeries, mZSeriesFormatter);
-        mPlot.addSeries(peaks, mPeakSeriesFormatter);
         mPlot.redraw();
     }
 }

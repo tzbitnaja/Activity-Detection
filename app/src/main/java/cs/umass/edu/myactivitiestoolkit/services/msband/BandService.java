@@ -24,11 +24,15 @@ import com.microsoft.band.sensors.SampleRate;
 import com.microsoft.band.sensors.BandHeartRateEvent;
 import com.microsoft.band.sensors.BandHeartRateEventListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import cs.umass.edu.myactivitiestoolkit.R;
 import cs.umass.edu.myactivitiestoolkit.constants.Constants;
 import cs.umass.edu.myactivitiestoolkit.processing.Filter;
 import cs.umass.edu.myactivitiestoolkit.services.SensorService;
 import cs.umass.edu.myactivitiestoolkit.view.activities.MainActivity;
+import edu.umass.cs.MHLClient.client.MessageReceiver;
 import edu.umass.cs.MHLClient.sensors.AccelerometerReading;
 import edu.umass.cs.MHLClient.sensors.GyroscopeReading;
 import cs.umass.edu.myactivitiestoolkit.ppg.HRSensorReading;
@@ -219,28 +223,15 @@ public class BandService extends SensorService implements BandGyroscopeEventList
 
         float [] gyro = gyroFilter.getFilteredValues(new float[]{event.getAngularVelocityX(), event.getAngularVelocityY(), event.getAngularVelocityZ()});
         Log.d(TAG,"gyro readings: x" + gyro[0] + ", y " + gyro[1] + ", z " + gyro[2]);
-
-//        broadcastAccelerometerReading(event.getTimestamp(),
-//                accel[0], accel[1], accel[2]);
-
-//        mClient.sendSensorReading(new AccelerometerReading(mUserID, "", "", event.getTimestamp(), 0,
-//                accel[0], accel[1], accel[2]));
-
-        //mClient.sendSensorReading(new GyroscopeReading(mUserID, "", "", event.getTimestamp(), 0,
-//                gyro[0], gyro[1], gyro[2]));
-
-//        mClient.sendSensorReading(new HRSensorReading(mUserID,"","",event.getTimestamp(),heartRate));
-
-
 //        int label = 7;
         /*label key:
                 0 -- sitting
                 1 -- Running
                 2 -- Shadow Boxing
-                3 -- Macarena
+                3 -- Clapping
          */
-
-        mClient.sendSensorReading(new BandSensorReading(mUserID,"","", event.getTimestamp(),0, heartRate,
+        broadcastAccelerometerReading(event.getTimestamp(),accel);
+        mClient.sendSensorReading(new BandSensorReading(mUserID,"","", event.getTimestamp(),heartRate,
                 accel[0], accel[1], accel[2],
                 gyro[0], gyro[1], gyro[2]));
 
@@ -262,6 +253,14 @@ public class BandService extends SensorService implements BandGyroscopeEventList
         manager.sendBroadcast(intent);
     }
 
+    public void broadcastActivity(String activity){
+        Intent intent = new Intent();
+        intent.putExtra("my_activity",activity);
+        intent.setAction("getting_activity");
+        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
+        manager.sendBroadcast(intent);
+    }
+
     public void broadcastBPM(final int bpm) {
         Intent intent = new Intent();
         intent.putExtra(Constants.KEY.HEART_RATE, bpm);
@@ -273,4 +272,25 @@ public class BandService extends SensorService implements BandGyroscopeEventList
     public static void setContext(Context ctx){
         ct = ctx;
     }
+
+    public void onConnected(){
+        super.onConnected();
+                mClient.registerMessageReceiver(new MessageReceiver(Constants.MHLClientFilter.ACTIVITY_DETECTED) {
+            @Override
+            protected void onMessageReceived(JSONObject json) {
+                String activity;
+                try {
+                    JSONObject data = json.getJSONObject("data");
+                    activity = data.getString("activity");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    return;
+                }
+                // TODO : broadcast activity to UI
+                //broadcastStatus(activity);
+                broadcastActivity(activity);
+            }
+        });
+    }
+
 }
