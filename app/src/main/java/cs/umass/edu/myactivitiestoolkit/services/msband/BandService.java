@@ -217,7 +217,7 @@ public class BandService extends SensorService implements BandGyroscopeEventList
 //        Object[] data = new Object[]{event.getTimestamp(),
 //                event.getAccelerationX(), event.getAccelerationY(), event.getAccelerationZ(),
 //                event.getAngularVelocityX(), event.getAngularVelocityY(), event.getAngularVelocityZ()};
-
+        //get the filtered values forr acc and gyro
         float [] accel = accelFilter.getFilteredValues(new float[]{event.getAccelerationX()*10, event.getAccelerationY()*10, event.getAccelerationZ()*10});
         Log.d(TAG,"accel readings: x" + accel[0] + ", y " + accel[1] + ", z " + accel[2]);
 
@@ -231,12 +231,10 @@ public class BandService extends SensorService implements BandGyroscopeEventList
                 3 -- Clapping
          */
         broadcastAccelerometerReading(event.getTimestamp(),accel);
+        //send to server
         mClient.sendSensorReading(new BandSensorReading(mUserID,"","", event.getTimestamp(),heartRate,
                 accel[0], accel[1], accel[2],
                 gyro[0], gyro[1], gyro[2]));
-
-        //String sample = TextUtils.join(",", data);
-//        Log.d(TAG, sample);
     }
 
     //TODO: Remove method from starter code
