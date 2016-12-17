@@ -1,9 +1,9 @@
-# My-Activities
+# My-Activities --enhanced
 
-## Tracking my daily health like never before!
+We are using accelerometer, gyroscope, and heart rate data to train the classifier and to predict activities.
 
-This is the starter code for CS390MB Mobile Health Sensing. My Activities is a daily health monitoring application, which tracks personal fitness, heart rate, sociability and frequent locations. The framework is provided; be ambitious!
-
-## Getting Started
-
-You should have arrived here as part of Assignment A0. Clone or fork the repository and follow the instructions in the assignment details to get accelerometer data streaming to the server.
+A BandSensorReading class was added to the Android code in order to bundle sensor data from MS Band 2. In the msband service we send the filtered data by create a band reading. (with an optional label)
+In the activities tab of the app we added a visualization pie chart whose sections shrink and grow based on the type of activity you’re doing.
+So in the Android code files that have been added or modified are band service, exercise fragment, and band reading
+ 
+On the python side there are four scripts that deal with collecting, training, and recognizing data and a feature extraction python script.
