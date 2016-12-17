@@ -20,12 +20,12 @@ def _compute_fft_features(window):
     compute multi-dimensional fft (fftn) from the window
     and then find the dominant frequency of each column
     """
-   sp = np.fft.fftn(window).astype(float)
-   freq = np.fft.fftfreq(len(window))
+    sp = np.fft.fftn(window).astype(float)
+    freq = np.fft.fftfreq(len(window))
    
-   fft = np.array([freq[np.argmax(sp[:,0])], freq[np.argmax(sp[:,1])], freq[np.argmax(sp[:,2])]])
+    fft = np.array([freq[np.argmax(sp[:,0])], freq[np.argmax(sp[:,1])], freq[np.argmax(sp[:,2])]])
 
-   return fft
+    return fft
 
 def _compute_mean_magnitude_features(window):
     """
